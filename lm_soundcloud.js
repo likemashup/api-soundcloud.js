@@ -1,0 +1,52 @@
+;(function($, window, document, undefined) {
+	'use strict';
+
+    $.lm_soundcloud = {};
+
+    var jsonpGET = function (path, args) {
+        $.ajax({
+            type: 'GET',
+            url: 'http://api.soundcloud.com' + path + ".json?client_id=3d4a9db6cae51ce8ccd96bdf3e8653f1",
+            data: args[1] || {},
+            success: function (data) {
+                if (typeof (data) === 'undefined') {
+                    args[0]({error: true});
+                }
+                else {
+                    args[0](data);
+                }
+            }
+        });
+    };
+
+    var methods = {
+        'getUser': 				'/users/$',
+        'getUserTracks': 		'/users/$/tracks',
+        'getUserPlaylists': 	'/users/$/playlists',
+        'getUserFavorites': 	'/users/$/favorites',
+        'getUserFollowers': 	'/users/$/folowers',
+        'getUserFollowing': 	'/users/$/following',
+        'getUserComments': 		'/users/$/comments',
+        'getUserGroups': 		'/users/$/groups'
+    };
+
+
+    var createAPIMethod = function (urlPattern) {
+        return function () {
+            var // Convert arguments to a real Array
+                args = [].slice.call(arguments),
+
+
+                // We run shift() on args here because we don't need to send
+                // the first argument to jsonpGET.
+                url = urlPattern.replace('$', args.shift());
+
+            jsonpGET(url, args);
+        };
+    };
+
+    for (var method in methods) {
+        $.lm_soundcloud[method] = createAPIMethod(methods[method]);
+    }	
+
+})(jQuery, window , document);
